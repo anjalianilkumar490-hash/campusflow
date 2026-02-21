@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusFlow - Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="initStudentDashboard()">
+
+<!-- Sidebar Navigation -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h3><i class="fas fa-graduation-cap"></i> CampusFlow</h3>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" onclick="switchStudentTab('dashboard'); return false;">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+        <a href="#" class="nav-item" onclick="switchStudentTab('request'); return false;">
+            <i class="fas fa-plus-circle"></i> Request Booking
+        </a>
+        <a href="#" class="nav-item" onclick="switchStudentTab('myRequests'); return false;">
+            <i class="fas fa-clipboard-list"></i> My Requests
+            <span class="badge" id="requestsBadge">0</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchStudentTab('approved'); return false;">
+            <i class="fas fa-check-circle"></i> Approved Bookings
+        </a>
+        <a href="#" class="nav-item" onclick="switchStudentTab('history'); return false;">
+            <i class="fas fa-history"></i> Booking History
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info" id="userInfo"></div>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="main-content">
+    
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+        <div class="dashboard-header">
+            <h1>Welcome to CampusFlow</h1>
+            <p id="dateTime"></p>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <i class="fas fa-clipboard-list"></i>
+                <h3>Total Requests</h3>
+                <p id="totalRequests">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-hourglass-half"></i>
+                <h3>Pending Requests</h3>
+                <p id="totalPendingStudent">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h3>Approved Bookings</h3>
+                <p id="totalApprovedStudent">0</p>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>Quick Actions</h2>
+            <button class="action-btn" onclick="switchStudentTab('request')">
+                <i class="fas fa-plus"></i> New Booking Request
+            </button>
+            <button class="action-btn" onclick="switchStudentTab('myRequests')">
+                <i class="fas fa-tasks"></i> Check Request Status
+            </button>
+            <button class="action-btn" onclick="switchStudentTab('approved')">
+                <i class="fas fa-calendar"></i> View Approved Bookings
+            </button>
+        </div>
+    </div>
+
+    <!-- Request Booking Tab -->
+    <div id="request" class="tab-content">
+        <div class="tab-header">
+            <h1><i class="fas fa-plus-circle"></i> Request Lab Room Booking</h1>
+        </div>
+
+        <div class="content-grid">
+            <!-- Booking Form -->
+            <div class="form-section">
+                <h2>New Booking Request</h2>
+                <form onsubmit="submitBookingRequest(event)">
+                    <div class="form-group">
+                        <label>Select Room *</label>
+                        <select id="roomSelect" required>
+                            <option value="">-- Choose a Room --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date *</label>
+                        <input type="date" id="bookingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Time *</label>
+                        <input type="time" id="bookingTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (hours) *</label>
+                        <input type="number" id="bookingDuration" min="1" max="8" placeholder="e.g., 2" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Purpose *</label>
+                        <textarea id="bookingPurpose" placeholder="Describe why you need the lab..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Request
+                    </button>
+                </form>
+            </div>
+
+            <!-- Available Rooms -->
+            <div class="list-section">
+                <h2>Available Rooms</h2>
+                <div id="availableRooms" class="items-list">
+                    <div class="loading">Loading rooms...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Requests Tab -->
+    <div id="myRequests" class="tab-content">
+        <div class="tab-header">
+            <h1><i class="fas fa-clipboard-list"></i> My Booking Requests</h1>
+        </div>
+
+        <div id="myRequestsList" class="requests-list">
+            <div class="loading">Loading requests...</div>
+        </div>
+    </div>
+
+    <!-- Approved Bookings Tab -->
+    <div id="approved" class="tab-content">
+        <div class="tab-header">
+            <h1><i class="fas fa-check-circle"></i> Approved Bookings</h1>
+        </div>
+
+        <div id="approvedBookingsList" class="events-list-view">
+            <div class="loading">Loading approved bookings...</div>
+        </div>
+    </div>
+
+    <!-- Booking History Tab -->
+    <div id="history" class="tab-content">
+        <div class="tab-header">
+            <h1><i class="fas fa-history"></i> Booking History</h1>
+        </div>
+
+        <div id="historyList" class="events-list-view">
+            <div class="loading">Loading history...</div>
+        </div>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+    // Initialize dashboard on page load
+    function initStudentDashboard() {
+        checkAuth('student');
+        loadStudentData();
+        setupDateTime();
+        loadAvailableRooms();
+        updateRequestsBadge();
+        
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').min = today;
+    }
+
+    function setupDateTime() {
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('dateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+    }
+</script>
+</body>
+</html>
